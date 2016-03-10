@@ -1,0 +1,11 @@
+$(document).ready(function()	{
+
+    $(".delete").click(function () {
+      if(!confirm("Tem certeza que deseja apagar?")){
+            return false;
+            }
+    });
+    
+
+    
+});

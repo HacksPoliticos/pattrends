@@ -1,0 +1,214 @@
+<?php
+include("config/config.php");
+
+$benchmark = new Benchmark();
+
+include("function.criatagclouds.php");
+include("function.printtagclouds.php");
+
+include('lib/dwoo/dwooAutoload.php'); 
+$dwoo = new Dwoo();
+if($_GET['ajax'] == "1")
+    {
+    $tpl  = new Dwoo_Template_File('templates/search.tpl'); 
+    }
+else
+    {
+    $tpl  = new Dwoo_Template_File('templates/search.tpl'); 
+    }
+$data = new Dwoo_Data();
+
+$cache = new Cache();
+
+$existe_em_cache = $cache->check();
+
+if ($existe_em_cache == 0)
+{
+$cache->start();
+
+$date_start = @$_GET['date_s'];
+$date_end   = @$_GET['date_e'];
+
+if($date_start == "")
+{
+    $timestamp  = mktime(0, 0, 0, date("m")  , date("d")-320, date("Y"));
+    $date_start = date("Ymd", $timestamp);
+}
+
+if($date_end == "")
+{
+    $date_end = date("Ymd");
+}
+
+$dados = new Dados();
+
+$q = @$_GET["q"];
+if($q != "")
+{
+    $tag = new Tags();
+    
+    if (strpos($q, ","))
+    {
+        $where = " 1=0 ";
+        foreach(explode(",", $q) as $w)
+        {
+            $q_id = $tag->get_id(trim($w), 0);
+            $where .= " OR id_tag = $q_id";
+        }
+    }
+    else
+    {
+        $q_id = $tag->get_id($q, 0);
+        $where = "id_tag = $q_id";
+    }
+        
+    $sql = "
+        SELECT patents.id, patent_tags.id_patent, patent_tags.id_tag
+        FROM patent_tags
+        JOIN patents ON (patents.id = patent_tags.id_patent)
+        WHERE $where
+        GROUP BY patents.id
+        LIMIT 100
+        ";
+        
+    //AQUI EU TENHO UM ARRAY COM AS PATENTES ONDE ESSE $q APARECE
+    $patents = $dados->select($sql);
+    
+    $where = " AND ( 1=0 ";
+    foreach($patents as $p)
+    {
+        $where .= " OR patent_tags.id_patent = '" . $p['id'] . "' ";    
+    }
+    $where .= " )";
+    
+    /*
+    $sql = "
+        SELECT patents.id as id_patent, patent_tags.id_tag, SUM(patent_tags.weight) AS weight, tags.name
+        FROM patents
+        JOIN patent_tags ON (patents.id = patent_tags.id_patent)
+        JOIN tags ON (id_tag = tags.id)
+        WHERE patents.date >= $date_start AND  patents.date <= $date_end
+        $where
+        GROUP BY (name)
+        ORDER BY weight DESC
+        LIMIT 100
+        ";
+    */
+    
+    $sql = "
+        SELECT patent_tags.id_patent as id_patent, patent_tags.id_tag, SUM(patent_tags.weight) AS weight, tags.name
+        FROM patent_tags
+        JOIN tags ON (id_tag = tags.id)
+        WHERE patent_tags.date >= $date_start AND  patent_tags.date <= $date_end
+        $where
+        GROUP BY (name)
+        ORDER BY weight DESC
+        LIMIT 100
+        ";
+
+    $tags = $dados->select($sql);
+    
+    
+}
+
+else
+{       
+    $sql = "
+        SELECT patent_tags.id_patent as id_patent, patent_tags.id_tag, SUM(patent_tags.weight) AS weight, tags.name
+        FROM patent_tags
+        JOIN tags ON (id_tag = tags.id)
+        WHERE patent_tags.date >= $date_start AND  patent_tags.date <= $date_end
+        GROUP BY (name)
+        ORDER BY weight DESC
+        LIMIT 100
+        ";
+        
+    $tags = $dados->select($sql);
+}
+
+//print_r($patents);
+
+
+####################
+
+//printTagCloud($patents);
+
+/******************************************************************************/
+function retornaTagCloud($tags) {
+        $max_size = 60;
+        $min_size = 12;
+       
+        $max_qty = $tags[0]["weight"];
+        $min_qty = $tags[count($tags) - 1]["weight"];
+        
+        //DA UMA EMBARALHADA NOS TRECO
+        //shuffle($tags);
+        
+        $spread = $max_qty - $min_qty;
+        if ($spread == 0) {
+                $spread = 1;
+        }
+       
+        $step = ($max_size - $min_size) / ($spread);
+       
+        $retorno = array();
+        foreach ($tags as $tag) {
+                $size = round($min_size + (($tag["weight"] - $min_qty) * $step));
+                $retorno[] = array("name" => $tag["name"], "weight" => $tag["weight"], "size" => $size);
+        }
+        return $retorno;
+    
+}
+/******************************************************************************/
+$data->assign('tags', retornaTagCloud($tags)); 
+
+/* PATENTS */
+    
+    $where = "";
+    if(count(@$patents) > 0)
+    {
+        $where = " AND ( 1=0 ";
+        foreach($patents as $p)
+        {
+            $where .= " OR patents.id = '" . $p['id_patent'] . "' ";    
+        }
+        $where .= " )";
+    }
+    
+    $sql = "
+        SELECT id, title, abstract
+        FROM patents
+        WHERE patents.date >= $date_start AND  patents.date <= $date_end
+        $where
+        LIMIT 10
+        ";
+    $patents = $dados->select($sql);
+
+    $data->assign('patents', $patents);
+    
+/* CORPS */
+
+    $sql = "
+        SELECT assignees.id, assignees.orgname, COUNT(patent_assignees.id_assignee) as qtdde
+        FROM assignees
+        JOIN patent_assignees ON (assignees.id = patent_assignees.id_assignee)
+        GROUP BY (assignees.orgname)
+        ORDER BY qtdde DESC
+        LIMIT 10
+        
+        ";
+    $assignees = $dados->select($sql);
+    
+    $data->assign('assignees', $assignees);
+
+
+    
+// Output the result ... 
+$dwoo->output($tpl, $data); 
+// ... or get it to use it somewhere else 
+//$dwoo->get($tpl, $data);
+
+$cache->stop();
+}
+$benchmark->stop();
+?>

@@ -1,0 +1,223 @@
+*
+{
+margin:0px;
+padding:0px;
+}
+
+body
+{
+width:760px;
+margin:auto;
+padding-top:10px;
+font-size:12px;
+}
+
+a, a:link, a:active, a:visited
+{
+color:#333333;
+}
+
+#texto
+{
+    /*
+width:400px;
+height:200px;
+    */
+}
+
+#div_help
+{
+width:320px;
+float:right;
+}
+
+#toggle_ajuda
+{
+float:right;
+}
+
+#div_help_conteudo
+{
+padding:10px;
+background-color:#FFFDD0;
+border:1px dotted #FCC200;
+}
+
+#import_list
+{
+background-color:#EEE;
+margin:15px;
+height:200px;
+overflow:auto;
+}
+
+#import_list div
+{
+padding:10px;
+margin-bottom:5px;
+}
+
+
+
+#menu
+{
+    padding-bottom:10px;
+    border-bottom:1px solid #333333;
+    margin-bottom:5px;
+}
+
+#menu li
+{
+    display:inline;
+}
+
+#menu li a
+{
+    text-decoration:none;
+    background-color:#EEEEEE;
+    padding:3px 5px;
+}
+
+#div_ajax
+{
+    position:absolute;
+    right:20px;
+    width:300px;
+    overflow:auto;
+    border:2px solid #DF5700;
+    background-color:#FFFFFF;
+    min-height:42px;
+    padding:5px;
+}
+
+#div_ajax_image
+{
+    width:0px;
+    padding-left:32px;
+    height:0px;
+    min-height:0px;
+    padding-bottom:32px;
+    overflow:hidden;
+    float:left;
+    background-image: url("../images/ajax.gif");
+}
+
+#div_ajax_close
+{
+float:right;
+}
+
+.controles
+{
+    float:right;
+}
+
+.paginacao
+{
+    text-align:center;
+    padding:5px;
+}
+
+.paginacao a
+{
+    padding:3px 5px;
+    background-color:#333333;
+    color:#FFFFFF;
+    margin-right:4px;
+    text-decoration:none;
+    font-size:10px;
+}
+
+.paginacao a.atual
+{
+    background-color:#EEEEEE;
+    color:#333333;
+}
+
+.resultados
+{
+    background-color:#EEEEEE;
+    padding:5px;
+    margin-bottom:3px;
+}
+
+.icons
+{
+    background-repeat:no-repeat;
+    width:0px;
+    padding-left:16px;
+    height:0px;
+    min-height:0px;
+    padding-bottom:6px;
+    overflow:hidden;
+    margin-left:5px;
+}
+
+.icons span
+{
+    display:none;
+}
+
+.create
+{
+    background-image: url("../images/icons/add.png");
+}
+
+.update
+{
+    background-image: url("../images/icons/pencil.png");
+}
+
+.delete
+{
+    background-image: url("../images/icons/delete.png");
+}
+
+.up
+{
+    background-image: url("../images/icons/arrow_up.png");
+}
+
+.down
+{
+    background-image: url("../images/icons/arrow_down.png");
+}
+
+.tick
+{
+    background-image: url("../images/icons/tick.png");
+}
+
+.database
+{
+    background-image: url("../images/icons/database.png");
+}
+
+.database_error
+{
+    background-image: url("../images/icons/database_error.png");
+}
+
+.compress
+{
+    background-image: url("../images/icons/compress.png");
+}
+
+.close
+{
+    background-image: url("../images/icons/cross.png");
+}
+
+
+label
+{
+    display: block;
+    border-bottom: 1px solid #333333;
+    margin-bottom: 5px;
+    margin-top: 5px;
+}
+
+input
+{
+    display: block;
+}

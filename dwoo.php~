@@ -1,0 +1,22 @@
+<?php 
+ 
+// Include the main class, the rest will be automatically loaded
+include 'lib/dwoo/dwooAutoload.php'; 
+ 
+// Create the controller, it is reusable and can render multiple templates
+$dwoo = new Dwoo(); 
+ 
+// Load a template file, this is reusable if you want to render multiple times the same template with different data
+$tpl = new Dwoo_Template_File('index.tpl'); 
+ 
+// Create a data set, this data set can be reused to render multiple templates if it contains enough data to fill them all
+$data = new Dwoo_Data(); 
+// Fill it with some data 
+$data->assign('foo', 'BAR'); 
+$data->assign('bar', 'BAZ'); 
+ 
+// Output the result ... 
+$dwoo->output($tpl, $data); 
+// ... or get it to use it somewhere else 
+//$dwoo->get($tpl, $data);
+?>

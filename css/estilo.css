@@ -1,0 +1,338 @@
+/*CORES
+ Amarelo     - #FDFC8E
+ Cinza       - #6D6D6D
+ Cinza claro - #E0E0E0
+ Vermelho    - #D16565
+ Azul        - #4F6FB2
+*/
+
+*
+{
+    padding:0px;
+    margin:0px;
+}
+
+body
+{
+    margin:10px;
+    margin:auto;
+    font-family:"Trebuchet MS", Arial, sans-serif;
+    width:1024px;
+    background-image:url("../img/bg_pattrends.jpg");
+    background-position:center top;
+    background-repeat:no-repeat;
+    background-color:#E0E0E0;
+    color:#6D6D6D;
+}
+
+#logo
+{
+    position:absolute;
+    top:15px;
+    right:15px;
+}
+
+img
+{
+    border:none;
+}
+
+.tags
+{
+    font-size:15px;
+    float:left;
+    width:68%;
+    padding-right:15px;
+    border-right: 1px solid #E0E0E0;
+    text-align:justify;
+}
+
+.assignees
+{
+    width:30%;
+    font-size:10px;
+    float:right;
+}
+
+.assignees ul li
+{
+    list-style:none;
+}
+
+.assignee
+{
+    text-decoration:none;
+    color:#6D6D6D;
+}
+
+.tag
+{
+    text-decoration:none;
+    color:#D16565;
+}
+
+.tag:hover
+{
+    background-color:#D16565;
+    color:#FFFFFF;
+}
+
+.assignee:hover
+{
+    background-color:#333333;
+    color:#FFFFFF;
+}
+
+.qtd
+{
+    color:#CCCCCC;
+    font-size:12px;
+}
+
+.patents
+{
+    
+}
+
+.patent
+{
+    margin:10px;
+}
+
+.patent .title
+{
+    background-color:#333333;
+    color:#FFFFFF;
+    padding:5px;
+    margin:10px;
+    font-size:14px;
+    line-height:25px;
+    text-decoration:none;
+}
+
+.patent .abstract
+{
+    margin:10px;
+    font-size:12px;
+}
+
+#patent
+{
+    margin:10px;
+}
+
+#patent h1
+{
+    background-color:#6D6D6D;
+    color:#FFFFFF;
+    padding:5px;
+    font-size:14px;
+    line-height:25px;
+    text-decoration:none;
+    margin-bottom:10px;
+}
+
+#patent h2
+{
+    background-color:#6D6D6D;
+    color:#FFFFFF;
+    padding:5px;
+    font-size:14px;
+    line-height:25px;
+    text-decoration:none;
+    margin-bottom:10px;
+    display:inline;
+}
+
+#patent .abstract
+{
+    border-bottom:1px solid #E0E0E0;
+    padding-bottom:10px;
+}
+
+#patent .description
+{
+    float:right;
+    width:45%;
+    text-align:center;
+    border-left:1px solid #E0E0E0;
+    padding-left:50px;
+}
+
+#patent .description p
+{
+    text-align:left;
+}
+
+#patent .claims
+{
+    float:left;
+    width:45%;
+    text-align:center;
+}
+
+#patent .claims p
+{
+    text-align:left;
+}
+
+#patent p
+{
+    margin:10px;
+    font-size:12px;
+}
+
+#patent br
+{
+    margin:10px;
+}
+
+.benchmark
+{
+    margin:10px;
+    padding:10px;
+    border:1px solid #333333;
+    clear:both;
+}
+
+#loading
+{
+    position:fixed;
+    width:100%;
+    height:100%;
+    top:0px;
+    left:0px;
+    background-color: RGBA(0,0,0, 0.5);
+}
+
+#loading div
+{
+    position:fixed;
+    top:40%;
+    left:40%;
+    margin:auto;
+    color:#FFFFFF;
+    font-weight:bold;
+    font-size:50px;
+}
+
+.resultado
+{
+    width:1000px;
+    margin:auto;
+}
+
+.resultado_slim div
+{
+    width:400px;
+    float:left;
+    margin:10px;
+}
+
+.resultado_slim div .tags
+{
+    min-height:400px;
+}
+
+.button
+{
+    background-color:#6D6D6D;
+    color:#FDFC8E;
+    border:none;
+    text-transform:uppercase;
+    font-weight:bold;
+    padding:5px;
+    font-size:17px;
+    text-decoration:none;
+}
+
+input
+{
+    background-color:#6D6D6D;
+    color:#E0E0E0;
+    border:none;
+    text-transform:uppercase;
+    font-weight:bold;
+    padding:5px;
+    font-size:17px;
+    margin-bottom:5px;
+    width:300px;
+}
+
+input.search
+{
+    color:#FDFC8E;
+    width:88px;
+    font-size:16px;
+}
+
+input.date
+{
+    width:101px;
+    margin-right:5px;
+    padding-top:6px;
+    padding-bottom:6px;
+    font-size:15px;
+}
+
+.label_date
+{
+    color:#333333;
+    margin-right:62px;
+    font-size:10px;
+}
+
+.close
+{
+    visibility:hidden;
+}
+
+.info
+{
+    border:1px dotted #6D6D6D;
+    padding:5px;
+    float:left;
+    font-size:14px;
+    max-width:390px;
+}
+
+.control
+{
+    float:right;
+}
+
+ul
+{
+    margin-left:20px;
+}
+
+ul li
+{
+    list-style-image: url("../img/seta_localiza.png");
+}
+
+.sep
+{
+    min-height:4px;
+    background-image: url("../img/linha_diagonal.gif");
+    margin-bottom:10px;
+    margin-top:10px;
+    clear:both;
+}
+
+.grafico
+{
+    display:none;
+    width:380px;
+}
+.visualize
+{
+    
+    margin:auto;
+    margin-top:30px;
+    margin-bottom:30px;
+}
+.visualize ul li
+{
+    list-style:none;
+}

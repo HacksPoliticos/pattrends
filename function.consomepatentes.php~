@@ -1,0 +1,257 @@
+<?php
+function consomepatentes($path, $file, $texto_separador)
+{
+    //TEXTO DO XML QUE SERA LIDO
+    $text = file_get_contents($path . $file);
+    
+    //PRECISA FAZER ISSO PORQUE TEM VARIOS XMLs CONCATENADOS DENTRO DO ARQUIVO
+    $patentes = explode($texto_separador, $text);
+    
+    //SEMPRE SOBRA ALGUM LIXO NO FINAL
+    array_pop($patentes);
+    
+    $total_patentes = count($patentes); 
+    //echo "achei: " . $total_patentes . " patentes <br>";
+    
+    //GUARDO AS PATENTES AQUI
+    $array_patentes = array();
+    
+    foreach($patentes as $p)
+    {
+        //TRANSFORMA O TEXTO EM UM OBJETO SIMPLEXML
+        $xml = simplexml_load_string(trim($p . $texto_separador));
+        
+        
+        
+        //TO COM UM PROBLEMA SERIO COM AS PATENTES DE DESIGN ENTAO VOU TIRAR ELAS DA 'EQUACAO' POR ENQUANTO        
+        if($xml->{"us-bibliographic-data-grant"}->{"application-reference"}->attributes()->{"appl-type"} != "design")
+        {
+            
+            echo "<pre>";
+            
+            $array_patente = array();
+            //NOME DO ARQUIVO
+            //echo $xml->attributes()->file;
+            
+            
+            //NUMERO DA PATENTE
+            $numero_patente = $xml->{"us-bibliographic-data-grant"}->{"publication-reference"}->{"document-id"}->{"doc-number"};
+            $array_patente['patent_number'] = $numero_patente;
+            
+            //URL MAROTO DE UM SITE DO GOVERNO ESTADUNIDENSE DA ONDE EM TIRO OS CLAIMS E DESCRIPTION (E FUTURAMENTE AS IMAGENS)
+            $url_externo = "http://patft.uspto.gov/netacgi/nph-Parser?Sect1=PTO2&Sect2=HITOFF&p=1&u=%2Fnetahtml%2FPTO%2Fsearch-adv.htm&r=1&f=G&l=50&d=PALL&S1=" . $numero_patente . "&OS=" . $numero_patente . "&RS=" . $numero_patente;
+            
+            //echo "numero da patente: <a href=\"" . $url_externo . "\" target=\"_blank\">" . $numero_patente . "</a>";
+            //echo $numero_patente;
+            
+            //AGORA EU PEGO OS DADOS DAQUELE SITE DO GOVERNO
+            $dados_externos = file_get_contents($url_externo);
+            
+            //echo "DESCRIPTION\n\n";
+            
+            $array_dados_externos = explode("<CENTER><B><I> Description</B></I></CENTER> ", $dados_externos);
+            $description = $array_dados_externos[1];
+            $description = explode("<HR>", $description);
+            $description = $description[1];
+            $description = trim(strip_tags($description));
+            
+            $array_patente['description'] = $description;
+            $array_patente['description_tags'] = criatags($description);
+            
+            /*
+            foreach(criatags($description) as $tag)
+            {
+                echo($tag[0] . " ");
+            }
+            */
+            
+            //echo "\n\nCLAIMS\n\n";
+            $array_dados_externos = explode("<CENTER><B><I>Claims</B></I></CENTER> ", $dados_externos);
+            $claims = $array_dados_externos[1];
+            $claims = explode("<HR>", $claims);
+            $claims = $claims[1];
+            $claims = trim(strip_tags($claims));
+            
+            $array_patente['claims'] = $claims;
+            $array_patente['claims_tags'] = criatags($claims);
+            
+            /*
+            foreach(criatags($claims) as $tag)
+            {
+                echo($tag[0] . " ");
+            }
+            */
+            
+            
+            
+            unset($array_dados_externos);
+        
+            //DADOS EXTERNOS
+            
+            
+            //DATA
+            $array_patente['date'] = $xml->attributes()->{"date-publ"};
+            //echo "data: " . $xml->attributes()->{"date-publ"};
+            //echo "\n";
+            
+            
+            //TITULO
+            $array_patente['title'] = $xml->{"us-bibliographic-data-grant"}->{"invention-title"};
+            //echo($xml->{"us-bibliographic-data-grant"}->{"invention-title"});
+            //echo "\n";
+            
+            //REFERENCIAS
+            //echo "\n\nREFERENCIAS\n";
+            $references = array();
+            foreach($xml->{"us-bibliographic-data-grant"}->{"references-cited"}->children() as $referencias)
+                {
+                    /*
+                    echo("<a target='_blank' href='http://patft.uspto.gov/netacgi/nph-Parser?Sect1=PTO2&Sect2=HITOFF&p=1&u=%2Fnetahtml%2FPTO%2Fsearch-adv.htm&r=0&f=S&l=50&d=PALL&Query=" . @$referencias->{"patcit"}->{"document-id"}->{"doc-number"} . "'>" . @$referencias->{"patcit"}->{"document-id"}->{"doc-number"} . "</a> ");
+                    echo @$referencias->{"patcit"}->{"document-id"}->{"doc-number"};
+                    echo @$referencias->{"patcit"}->{"document-id"}->{"name"};
+                    echo " ";
+                    echo @$referencias->{"patcit"}->{"document-id"}->{"date"};
+                    echo " ";
+                    echo @$referencias->{"patcit"}->{"document-id"}->{"country"};
+                    echo "\n";
+                    */
+                    
+                    if($referencias->{"patcit"}->{"document-id"}->{"doc-number"} != "")
+                    {
+                        $docnumber = $referencias->{"patcit"}->{"document-id"}->{"doc-number"};
+                        $name      = $referencias->{"patcit"}->{"document-id"}->{"name"};
+                        $date      = $referencias->{"patcit"}->{"document-id"}->{"date"};
+                        $country   = $referencias->{"patcit"}->{"document-id"}->{"country"};
+                        
+                        $references[] = array($docnumber, $name, $date, $country);
+                        
+                        unset($docnumber);
+                        unset($name);
+                        unset($date);
+                        unset($country);
+                    }
+                }
+                
+            $array_patente['references'] = $references;
+            
+            /*    
+                echo "\n";
+                echo "\n";
+            */
+            
+            //OUTRAS REFERENCIAS
+            $references_other = array();
+            //echo "\n\nOUTRAS REFERENCIAS\n";
+            foreach($xml->{"us-bibliographic-data-grant"}->{"references-cited"}->children() as $referencias)
+                {
+                    if($othercit = $referencias->{"nplcit"}->{"othercit"} != "")
+                    {
+                        $othercit = $referencias->{"nplcit"}->{"othercit"};
+                        $category = $referencias->{"nplcit"}->{"category"};
+                        
+                        $references_other[] = array($othercit, $category);
+                        
+                        unset($othercit);
+                        unset($category);
+                    }
+                }
+            $array_patente['references_other'] = $references_other;
+            
+            
+            //ABSTRACT
+            $array_patente['abstract'] = $xml->abstract->p;
+            //echo($xml->abstract->p);
+            
+            
+            //ABSTRACT TAGS
+            //echo "\n\nTAGS\n";
+            $array_patente['abstract_tags'] = criatags($xml->abstract->p);
+            /*
+            foreach(criatags($xml->abstract->p) as $tag)
+            {
+                echo($tag[0] . " ");
+            }
+            */
+            
+            //echo "\n\n";
+            
+            $array_patente['appl-type'] = $xml->{"us-bibliographic-data-grant"}->{"application-reference"}->attributes()->{"appl-type"};
+            $array_patente['appl-doc-number'] = $xml->{"us-bibliographic-data-grant"}->{"application-reference"}->attributes()->{"appl-doc-number"};
+            $array_patente['appl-date'] = $xml->{"us-bibliographic-data-grant"}->{"application-reference"}->attributes()->{"appl-date"};
+            
+            /*
+             echo($xml->{"us-bibliographic-data-grant"}->{"application-reference"}->attributes()->{"appl-type"});
+            echo "\n";
+            echo($xml->{"us-bibliographic-data-grant"}->{"application-reference"}->{"document-id"}->{"doc-number"});
+            echo "\n";
+            echo($xml->{"us-bibliographic-data-grant"}->{"application-reference"}->{"document-id"}->date);            
+            echo "\n\n";
+            */
+            
+            $parties = array();
+            foreach($xml->{"us-bibliographic-data-grant"}->{"parties"}->applicants->children() as $p)
+            {
+                /*
+                echo $p->addressbook->{"last-name"};
+                echo ", ";
+                echo $p->addressbook->{"first-name"};
+                echo " (";
+                echo $p->addressbook->address->country;
+                echo ")";
+                echo "\n";
+                */
+                
+                $lastname  = $p->addressbook->{"last-name"};
+                $firstname = $p->addressbook->{"first-name"};
+                $country   = $p->addressbook->address->country;
+                
+                $parties[] = array($lastname, $firstname, $country);
+                
+                unset($lastname);
+                unset($firstname);
+                unset($country);
+                
+            }
+            $array_patente['parties'] = $parties;
+            
+            //ASSIGNEES
+            $assignees = array();
+            foreach($xml->{"us-bibliographic-data-grant"}->{"assignees"}->children() as $a)
+            {
+                /*
+                echo $a->{"addressbook"}->{"orgname"};
+                echo $a->{"addressbook"}->address->country;
+                */
+                $orgname = $a->{"addressbook"}->{"orgname"};
+                $country = $a->{"addressbook"}->address->country;
+                
+                $assignees[] = array($orgname, $country);
+                
+                unset($orgname);
+                unset($country);
+                
+            }
+            $array_patente['assignees'] = $assignees;
+            
+            /*FIGURES
+            echo "\n\nFiguras e drawings\n";
+            echo(@$xml->{"us-bibliographic-data-grant"}->{"figures"}->{"number-of-drawing-sheets"});
+            echo "\n";
+            echo(@$xml->{"us-bibliographic-data-grant"}->{"figures"}->{"number-of-figures"});
+            */
+            
+            //GUARDA NA VARIAVEL QUE TEM TODAS AS PATENTES
+            $array_patentes[] = $array_patente;
+            unset($array_patente);
+            
+            //MOSTRA O XML TODO
+            //print_r($xml);
+            //echo "</pre><hr />";
+        
+        }
+    
+    }
+    
+    return($array_patentes);
+}
+?>
